@@ -61,13 +61,21 @@ const before = manifest.dependencies[PKG]
 
 const samePath = (a, b) => resolve(a).toLowerCase() === resolve(b).toLowerCase()
 
-/** 联接到目标目录？junction 在 Node 里 lstat 不是 symlink，只能靠 realpath.native 解。 */
-function isLinkToTarget(link) {
+/** 是重定向（junction / 符号链接）吗？真实目录的 realpath 等于自身，不会被当成联接。 */
+function isLink(link) {
   if (!existsSync(link)) return false
   try {
-    return samePath(realpathSync.native(link), TARGET)
+    return !samePath(realpathSync.native(link), link)
   } catch {
     return false
+  }
+}
+
+function linkTarget(link) {
+  try {
+    return realpathSync.native(link)
+  } catch {
+    return '(无法解析)'
   }
 }
 
@@ -98,11 +106,11 @@ if (uninstall) {
     process.exit(0)
   }
   commitManifest()
-  if (isLinkToTarget(linkPath)) {
+  if (isLink(linkPath)) {
     removeLink(linkPath)
     console.log(`REMOVED ${linkPath}（应用内 Ctrl+R 重载生效）`)
   } else if (existsSync(linkPath)) {
-    console.log(`跳过联接：${linkPath} 存在但不指向本仓，未动它`)
+    console.log(`跳过联接：${linkPath} 是真实目录，未动它`)
   }
   process.exit(0)
 }
@@ -128,11 +136,12 @@ commitManifest()
 const linkDir = join(PROFILE, 'node_modules')
 mkdirSync(linkDir, { recursive: true })
 if (existsSync(linkPath)) {
-  if (!isLinkToTarget(linkPath)) {
-    throw new Error(`${linkPath} 已存在且不是指向本仓的联接，先人工确认再装`)
+  if (!isLink(linkPath)) {
+    throw new Error(`${linkPath} 已存在且是真实目录（不是联接），先人工确认再装`)
   }
+  const old = linkTarget(linkPath)
   removeLink(linkPath)
-  console.log('已移除旧的联接')
+  console.log(`已移除旧联接 → ${old}`)
 }
 symlinkSync(TARGET, linkPath, process.platform === 'win32' ? 'junction' : 'dir')
 console.log(`LINK ${linkPath} -> ${TARGET}`)
