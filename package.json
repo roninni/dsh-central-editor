@@ -1,0 +1,69 @@
+{
+  "name": "dsh-central-editor",
+  "version": "0.3.0",
+  "description": "在对话旁浏览、修改并逐块审阅工作区文件（Monaco 内核）",
+  "type": "module",
+  "main": "dsh/index.js",
+  "exports": {
+    ".": "./dsh/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dsh",
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "license": "MIT",
+  "author": "roninni",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roninni/dsh-central-editor.git"
+  },
+  "homepage": "https://github.com/roninni/dsh-central-editor#readme",
+  "bugs": {
+    "url": "https://github.com/roninni/dsh-central-editor/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "workbench",
+    "editor",
+    "monaco",
+    "code-review"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "dsh-desktop-workbenches",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-api-workspace-files"
+      ]
+    }
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "codemirror": "^6.0.2",
+    "monaco-editor": "^0.57.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "esbuild-wasm": "^0.28.2",
+    "rollup": "^4.67.5",
+    "rollup-plugin-import-css": "^4.2.1"
+  },
+  "scripts": {
+    "build": "node build.mjs src/monaco-host.js lib/client.monaco.js dsh-central-editor client.monaco.js --css && node build.mjs src/client.js lib/client.js dsh-central-editor",
+    "build:probe": "node build.mjs src/probe.js build/probe.out.js dsh-central-editor-probe",
+    "test": "node test/path-guard.test.mjs && node test/review-model.test.mjs && node test/file-link.test.mjs && node test/chat-resize.test.mjs && node test/review-api.test.mjs && node test/security.test.mjs && node test/panel-isolation.test.mjs"
+  }
+}

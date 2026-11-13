@@ -1,0 +1,11 @@
+node_modules/
+build/
+
+# 本机安装脚本与 DSH profile 备份
+*.bak-*
+*.log
+
+# 系统杂项
+.DS_Store
+Thumbs.db
+desktop.ini
