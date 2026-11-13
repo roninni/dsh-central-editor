@@ -1,0 +1,11 @@
+# 统一行尾：源码与文档一律 LF，Windows 克隆也不改写
+* text=auto eol=lf
+
+# Windows 脚本仍用 CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 构建产物按二进制存，保证字节可复现（npm run build 的结果直接可比）
+lib/** -text
+build/** -text
